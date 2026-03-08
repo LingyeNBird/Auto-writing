@@ -27,6 +27,7 @@
 - 内容概述：
   - 说明开发过程中的边界、约束和实现原则
   - 强调不要过度工程化
+  - 强调默认采用 TDD（测试驱动开发）推进核心逻辑
   - 强调结构化 canon 与检索记忆分离
   - 规定状态机、提示词、日志、版本管理和 Docker 持久化等注意事项
 
@@ -34,4 +35,4 @@
 
 - 开始开发前，先阅读 `docs/project-requirements.md`，明确范围和目标
 - 开始设计或搭骨架前，阅读 `docs/project-design.md`
-- 实际编码时，持续参考 `docs/development-notes.md`，避免实现偏离方向
+- 实际编码时，持续参考 `docs/development-notes.md`，并按 TDD 方式推进实现，避免实现偏离方向
