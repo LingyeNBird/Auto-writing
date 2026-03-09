@@ -1,0 +1,18 @@
+{
+  "placeholders": {
+    "z_rule": "No time travel without cost.",
+    "a_rule": "Magic requires a visible source."
+  },
+  "role_info": [
+    {
+      "name": "Lina",
+      "role": "protagonist",
+      "goal": "Expose the court conspiracy"
+    },
+    {
+      "name": "Marro",
+      "role": "mentor",
+      "goal": "Protect Lina at all costs"
+    }
+  ]
+}
