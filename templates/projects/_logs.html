@@ -1,0 +1,58 @@
+<h2>Recent Logs</h2>
+<table>
+  <thead>
+    <tr>
+      <th>time</th>
+      <th>scope</th>
+      <th>from</th>
+      <th>to</th>
+      <th>details</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% if logs %}
+      {% for entry in logs %}
+    <tr>
+      <td>[%= format_dt(entry.created_at) =%]</td>
+      <td>[%= entry.scope =%]</td>
+      <td>[%= entry.from_status =%]</td>
+      <td>[%= entry.to_status =%]</td>
+      <td>[%= entry.details =%]</td>
+    </tr>
+      {% endfor %}
+    {% else %}
+    <tr><td colspan="5" class="muted">[%= empty_message =%]</td></tr>
+    {% endif %}
+  </tbody>
+</table>
+
+<style>
+  #logs-panel h2 {
+    margin: 0 0 0.65rem;
+    color: var(--accent);
+    font-size: 1rem;
+  }
+
+  #logs-panel table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+
+  #logs-panel th,
+  #logs-panel td {
+    border: 1px solid var(--panel-border);
+    padding: 0.45rem 0.5rem;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  #logs-panel td:last-child {
+    min-width: 14ch;
+    word-break: break-word;
+  }
+
+  #logs-panel .muted {
+    color: var(--muted);
+  }
+</style>

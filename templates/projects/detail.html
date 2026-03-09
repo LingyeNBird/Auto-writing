@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Auto Writing Console - Project</title>
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+  <style>
+    :root {
+      --bg: #090f14;
+      --panel: #101922;
+      --panel-border: #25394d;
+      --text: #d8e2ef;
+      --muted: #9bb0c7;
+      --accent: #80e0ff;
+      --space-2: 0.5rem;
+      --space-3: 0.75rem;
+      --space-4: 1rem;
+      --space-5: 1.25rem;
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        linear-gradient(170deg, rgba(128, 224, 255, 0.08), transparent 34%),
+        linear-gradient(350deg, rgba(63, 152, 224, 0.09), transparent 42%),
+        var(--bg);
+      color: var(--text);
+      font-family: "IBM Plex Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+      min-height: 100vh;
+      padding: var(--space-5) var(--space-4);
+    }
+
+    .shell {
+      max-width: 1080px;
+      margin: 0 auto;
+      display: grid;
+      gap: var(--space-4);
+    }
+
+    .panel {
+      border: 1px solid var(--panel-border);
+      border-radius: var(--radius);
+      background: color-mix(in oklab, var(--panel), black 6%);
+      padding: var(--space-4);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.34);
+    }
+
+    h1 {
+      margin: 0 0 var(--space-2);
+      font-size: 1.4rem;
+      color: var(--accent);
+    }
+
+    .meta {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+      white-space: pre-line;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: var(--space-3);
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: var(--space-4);
+    }
+
+    button,
+    .button-link {
+      border: 1px solid color-mix(in oklab, var(--accent), black 25%);
+      border-radius: 6px;
+      padding: 0.5rem 0.8rem;
+      background: color-mix(in oklab, var(--accent), black 68%);
+      color: #e7f6ff;
+      font: inherit;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .grid {
+      display: grid;
+      gap: var(--space-4);
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    }
+
+    .muted {
+      color: var(--muted);
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="panel">
+      <h1>Project Console / [%= project_name =%]</h1>
+      <p class="meta">id: [%= project_id =%]
+status: [%= project_status =%]
+chapters: [%= project_chapter_count =%]
+theme: [%= project_theme_notes =%]
+created: [%= project_created_at =%]
+updated: [%= project_updated_at =%]</p>
+      <div class="toolbar">
+        <form method="post" action="[%= run_start_action =%]">
+          <button type="submit">Start run</button>
+        </form>
+        <a class="button-link" href="/projects/new">New project</a>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="panel" id="status-panel"
+               hx-get="[%= status_poll_url =%]"
+               hx-trigger="load, every 2s"
+               hx-swap="innerHTML">
+        <p class="muted">Loading status...</p>
+      </article>
+      <article class="panel" id="logs-panel"
+               hx-get="[%= logs_poll_url =%]"
+               hx-trigger="load, every 3s"
+               hx-swap="innerHTML">
+        <p class="muted">Loading logs...</p>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

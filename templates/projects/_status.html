@@ -1,0 +1,56 @@
+<h2>Run Status</h2>
+<p><strong>run_id:</strong> [%= run.id if run else "-" =%]</p>
+<p><strong>status:</strong> [%= run.status if run else "NOT_STARTED" =%]</p>
+<p><strong>checkpoint_state:</strong> [%= run.checkpoint_state if run else "-" =%]</p>
+<p><strong>failure_reason:</strong> [%= failure_reason =%]</p>
+
+<h3>Chapter Status</h3>
+<table>
+  <thead>
+    <tr><th>chapter</th><th>status</th></tr>
+  </thead>
+  <tbody>
+    {% if not run %}
+    <tr><td colspan="2" class="muted">No run yet. Start a run to populate status.</td></tr>
+    {% elif chapter_runs %}
+      {% for chapter in chapter_runs %}
+    <tr><td>[%= chapter.chapter_index =%]</td><td>[%= chapter.status =%]</td></tr>
+      {% endfor %}
+    {% else %}
+    <tr><td colspan="2" class="muted">No chapter runs recorded yet.</td></tr>
+    {% endif %}
+  </tbody>
+</table>
+
+<style>
+  #status-panel h2,
+  #status-panel h3 {
+    margin: 0 0 0.65rem;
+    color: var(--accent);
+    font-size: 1rem;
+  }
+
+  #status-panel p {
+    margin: 0 0 0.35rem;
+    line-height: 1.4;
+  }
+
+  #status-panel table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0.7rem;
+    font-size: 0.92rem;
+  }
+
+  #status-panel th,
+  #status-panel td {
+    border: 1px solid var(--panel-border);
+    padding: 0.45rem 0.5rem;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  #status-panel .muted {
+    color: var(--muted);
+  }
+</style>
