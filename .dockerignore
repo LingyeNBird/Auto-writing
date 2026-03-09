@@ -1,0 +1,15 @@
+.git
+.gitignore
+.venv
+.pytest_cache
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+
+data
+logs
+storage
+
+tests
+.sisyphus
