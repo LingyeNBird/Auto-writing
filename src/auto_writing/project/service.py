@@ -107,10 +107,6 @@ class ProjectService:
 
         for relative_path, content in {
             "project.json": json.dumps(project_payload, indent=2) + "\n",
-            "story_bible_v1.md": "# Story Bible v1\n\n",
-            "world/rules_v1.yaml": "rules: []\n",
-            "world/locations_v1.yaml": "locations: []\n",
-            "outlines/master_outline_v1.md": "# Master Outline v1\n\n",
             "reports/continuity_report_v1.json": "{}\n",
             "canon/context.json": json.dumps(
                 {

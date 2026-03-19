@@ -49,9 +49,13 @@ def test_post_projects_creates_persistence_record_and_project_assets(
 
         assert project_dir.is_dir()
         assert (project_dir / "project.json").is_file()
-        assert (project_dir / "story_bible_v1.md").is_file()
-        assert (project_dir / "world" / "rules_v1.yaml").is_file()
-        assert (project_dir / "outlines" / "master_outline_v1.md").is_file()
+        assert (project_dir / "canon" / "context.json").is_file()
+        assert (project_dir / "retrieval" / "memory.json").is_file()
+        assert not (project_dir / "story_bible_v1.md").exists()
+        assert not (project_dir / "world" / "rules_v1.yaml").exists()
+        assert not (project_dir / "world" / "locations_v1.yaml").exists()
+        assert not (project_dir / "outlines" / "master_outline_v1.md").exists()
+        assert not (project_dir / "outlines" / "chapter_001_v1.md").exists()
 
         project_json = json.loads((project_dir / "project.json").read_text(encoding="utf-8"))
         assert project_json["id"] == project_id
