@@ -36,3 +36,4 @@ temp/
 
 # Local planning files
 todo.csv
+.sisyphus/
