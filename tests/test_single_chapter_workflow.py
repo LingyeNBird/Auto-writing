@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib
+import json
 from pathlib import Path
 from typing import Any, cast
 
@@ -56,11 +57,26 @@ def test_single_chapter_run_reaches_locked_with_versioned_artifacts(
         assert status_payload["chapter_runs"][0]["status"] == "LOCKED"
 
     chapter_dir = data_dir / "projects" / project_id / "chapters" / "chapter_001"
+    project_dir = data_dir / "projects" / project_id
     assert (chapter_dir / "draft_v1.md").is_file()
     assert (chapter_dir / "summary_v1.md").is_file()
     assert (chapter_dir / "facts_v1.json").is_file()
     assert (chapter_dir / "review_v1.json").is_file()
     assert (chapter_dir / "draft_v2.md").is_file()
+    assert (project_dir / "story_bible_v1.md").is_file()
+    assert (project_dir / "world" / "rules_v1.yaml").is_file()
+    assert (project_dir / "world" / "locations_v1.yaml").is_file()
+    assert (project_dir / "characters" / "lead_character_v1.md").is_file()
+    assert (project_dir / "outlines" / "master_outline_v1.md").is_file()
+    assert (project_dir / "outlines" / "chapter_001_v1.md").is_file()
+    assert (project_dir / "story_bible_v1.md").read_text(encoding="utf-8") != "# Story Bible v1\n\n"
+    assert (project_dir / "world" / "rules_v1.yaml").read_text(encoding="utf-8") != "rules: []\n"
+    assert (project_dir / "world" / "locations_v1.yaml").read_text(encoding="utf-8") != "locations: []\n"
+    assert (project_dir / "outlines" / "master_outline_v1.md").read_text(encoding="utf-8") != "# Master Outline v1\n\n"
+
+    canon_payload = json.loads((project_dir / "canon" / "context.json").read_text(encoding="utf-8"))
+    assert canon_payload["placeholders"]["core_rule"] != "Maintain internal causality."
+    assert canon_payload["role_info"][0]["name"] != "Narrator"
 
 
 def test_malformed_fake_output_causes_controlled_failure_without_silent_skip(

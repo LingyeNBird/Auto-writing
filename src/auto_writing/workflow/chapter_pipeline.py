@@ -20,7 +20,7 @@ DEFAULT_FACTS_PROMPT_TEMPLATE = "extract/facts.md"
 DEFAULT_REVIEW_PROMPT_TEMPLATE = "review/continuity.md"
 DEFAULT_SUMMARY_PROMPT_TEMPLATE = "chapter/summary.md"
 DEFAULT_REVISE_PROMPT_TEMPLATE = "chapter/revise.md"
-_VERSION_PATTERN = re.compile(r"^(?P<name>[a-z_]+)_v(?P<version>\d+)\.(?P<ext>[a-z0-9]+)$")
+_VERSION_PATTERN = re.compile(r"^(?P<name>[a-z0-9_]+)_v(?P<version>\d+)\.(?P<ext>[a-z0-9]+)$")
 
 
 class MalformedLLMOutputError(RuntimeError):
@@ -306,6 +306,11 @@ class SingleChapterWorkflowPipeline:
     ) -> dict[str, object]:
         project_dir = self._runtime_config.data_dir / "projects" / project_id
         theme = (theme_notes or "Keep continuity stable.").strip() or "Keep continuity stable."
+        outline = self._latest_project_text_artifact(
+            project_dir / "outlines",
+            name="chapter_001",
+            extension="md",
+        )
         request = ChapterPacketRequest(
             project_dir=project_dir,
             project_config={
@@ -314,7 +319,7 @@ class SingleChapterWorkflowPipeline:
                 "theme_notes": theme,
             },
             chapter_index=1,
-            outline=f"Chapter 1 outline for project '{project_name}'.",
+            outline=outline,
             goal=f"Chapter goal: {theme}",
             recent_summaries=["No prior chapter summary yet; establish baseline continuity."],
             constraints=[
@@ -384,6 +389,12 @@ class SingleChapterWorkflowPipeline:
         if latest is None:
             raise RuntimeError(f"Missing artifact for stage continuation: {name}")
         return latest.read_text(encoding="utf-8")
+
+    def _latest_project_text_artifact(self, directory: Path, *, name: str, extension: str) -> str:
+        latest = self._latest_artifact_path(directory, name=name, extension=extension)
+        if latest is None:
+            raise RuntimeError(f"Missing project planning artifact: {name}")
+        return latest.read_text(encoding="utf-8").strip()
 
     def _latest_artifact_path(self, chapter_dir: Path, *, name: str, extension: str) -> Path | None:
         highest_version = 0
