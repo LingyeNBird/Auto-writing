@@ -5,6 +5,7 @@ from dataclasses import dataclass, field
 import hashlib
 import json
 import os
+import re
 from typing import Protocol
 
 
@@ -74,9 +75,129 @@ class FakeLLMClient:
         value = metadata.get(key, "").strip()
         return value or default
 
+    @staticmethod
+    def _slugify(value: str) -> str:
+        normalized = re.sub(r"[^a-z0-9]+", "-", value.strip().lower())
+        return normalized.strip("-") or "project"
+
+    @staticmethod
+    def _project_title(value: str) -> str:
+        parts = [segment for segment in re.split(r"[^a-zA-Z0-9]+", value.strip()) if segment]
+        if len(parts) == 0:
+            return "Project"
+        return " ".join(part.capitalize() for part in parts)
+
     def _stage_payload(self, request: LLMRequest, fingerprint: str) -> tuple[str, Mapping[str, object]]:
         metadata = dict(sorted(request.metadata.items()))
         chapter_index = self._metadata_value(metadata, "chapter_index", "1")
+        project_name = self._metadata_value(metadata, "project_name", "project")
+        project_title = self._project_title(project_name)
+        project_slug = self._slugify(project_name)
+        theme_notes = self._metadata_value(metadata, "theme_notes", "Keep continuity stable.")
+        chapter_count = self._metadata_value(metadata, "chapter_count", "1")
+
+        if request.stage == "planner-premise":
+            story_bible_markdown = "\n\n".join(
+                [
+                    f"# Story Bible for {project_title}",
+                    f"## Premise\n{project_title} turns {theme_notes.lower()} into the central pressure point of the run.",
+                    f"## Promise\nTrack the clue chain stamped with deterministic marker {fingerprint[:10]}.",
+                ]
+            )
+            payload = {
+                "story_bible_markdown": story_bible_markdown,
+                "canon_placeholders": {
+                    "core_rule": f"All major reveals in {project_title} must remain causally grounded.",
+                    "story_driver": f"Push the conflict around {theme_notes.lower()} until chapter {chapter_count} resolves it.",
+                },
+            }
+            return json.dumps(payload, ensure_ascii=True, sort_keys=True), payload
+
+        if request.stage == "planner-world":
+            payload = {
+                "rules": [
+                    {
+                        "name": "causality_anchor",
+                        "description": f"Evidence in {project_slug} must validate the public story before it can overturn it.",
+                    },
+                    {
+                        "name": "pressure_clock",
+                        "description": f"Every setback advances the hidden clock keyed to {fingerprint[:8]}.",
+                    },
+                ],
+                "locations": [
+                    {
+                        "name": "Archive Tower",
+                        "description": f"A records vault where {project_title} keeps its most dangerous secrets in plain sight.",
+                    },
+                    {
+                        "name": "Transit Ward",
+                        "description": f"A crowded district where {theme_notes.lower()} collides with daily survival.",
+                    },
+                ],
+                "canon_placeholders": {
+                    "signature_location": "Archive Tower",
+                    "pressure_point": f"The public order depends on the hidden clock {fingerprint[:8]} staying secret.",
+                },
+            }
+            return json.dumps(payload, ensure_ascii=True, sort_keys=True), payload
+
+        if request.stage == "planner-characters":
+            lead_name = f"{project_title.split()[0]} Vale"
+            lead_goal = f"Expose the truth behind {theme_notes.lower()} before the next official deadline closes the trail."
+            card_markdown = "\n".join(
+                [
+                    f"# {lead_name}",
+                    "",
+                    "- Role: lead investigator",
+                    f"- Goal: {lead_goal}",
+                    f"- Anchor: keeps track of marker {fingerprint[:8]}",
+                ]
+            )
+            payload = {
+                "characters": [
+                    {
+                        "file_stem": "lead_character",
+                        "name": lead_name,
+                        "role": "lead investigator",
+                        "goal": lead_goal,
+                        "card_markdown": card_markdown,
+                    }
+                ],
+                "role_info": [
+                    {
+                        "name": lead_name,
+                        "role": "lead investigator",
+                        "goal": lead_goal,
+                    }
+                ],
+            }
+            return json.dumps(payload, ensure_ascii=True, sort_keys=True), payload
+
+        if request.stage == "planner-master-outline":
+            payload = {
+                "master_outline_markdown": "\n".join(
+                    [
+                        f"# Master Outline for {project_title}",
+                        "",
+                        f"1. Chapter 1 - {project_title} opens with a destabilizing clue tied to {theme_notes.lower()}.",
+                    ]
+                )
+            }
+            return json.dumps(payload, ensure_ascii=True, sort_keys=True), payload
+
+        if request.stage == "planner-chapter-outline":
+            outline_text = "\n".join(
+                [
+                    f"# Chapter {chapter_index} Outline",
+                    "",
+                    f"- Project: {project_name}",
+                    f"- Opening move: reveal the clue chain marked {fingerprint[:8]}.",
+                    f"- Chapter goal: escalate {theme_notes.lower()} without breaking canon.",
+                ]
+            )
+            return outline_text, {"chapter_outline": outline_text}
+
         if request.stage == "chapter-draft":
             draft_text = (
                 f"Chapter {chapter_index} draft built from deterministic fingerprint {fingerprint[:12]}."

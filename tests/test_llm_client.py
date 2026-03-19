@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 import pytest
 
 from auto_writing.llm import (
@@ -38,6 +40,50 @@ def test_build_llm_client_defaults_to_fake_provider() -> None:
     result = client.generate(request)
 
     assert result.provider == "fake"
+
+
+def test_fake_llm_client_returns_deterministic_planner_stage_payloads() -> None:
+    client = FakeLLMClient()
+    request = LLMRequest(
+        stage="planner-world",
+        prompt="Plan the world",
+        response_format="json",
+        metadata={
+            "project_id": "p-1",
+            "project_name": "demo-project",
+            "theme_notes": "city mystery",
+        },
+    )
+
+    first = client.generate(request)
+    second = client.generate(request)
+    payload = json.loads(first.output_text)
+
+    assert first == second
+    assert payload["rules"]
+    assert payload["locations"]
+    assert first.structured_output["rules"] == payload["rules"]
+    assert first.structured_output["locations"] == payload["locations"]
+
+
+def test_fake_llm_client_returns_deterministic_planner_chapter_outline_text() -> None:
+    client = FakeLLMClient()
+    request = LLMRequest(
+        stage="planner-chapter-outline",
+        prompt="Outline chapter 1",
+        metadata={
+            "project_id": "p-1",
+            "project_name": "demo-project",
+            "chapter_index": "1",
+        },
+    )
+
+    first = client.generate(request)
+    second = client.generate(request)
+
+    assert first == second
+    assert "Chapter 1 Outline" in first.output_text
+    assert "demo-project" in first.output_text
 
 
 def test_real_provider_missing_key_fails_before_transport_call() -> None:
