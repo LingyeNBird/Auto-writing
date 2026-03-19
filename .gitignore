@@ -33,3 +33,6 @@ storage/
 *.log
 tmp/
 temp/
+
+# Local planning files
+todo.csv
